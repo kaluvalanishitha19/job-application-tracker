@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes import applications
 from app.routes import applications, interview_stages
+from app.routes import applications, interview_stages, recruiter_contacts
 
 app = FastAPI(title="Job Application Tracker API")
 
@@ -17,6 +18,9 @@ app.add_middleware(
 app.include_router(applications.router)
 app.include_router(applications.router)
 app.include_router(interview_stages.router)
+app.include_router(applications.router)
+app.include_router(interview_stages.router)
+app.include_router(recruiter_contacts.router)
 
 
 @app.get("/api/health")
