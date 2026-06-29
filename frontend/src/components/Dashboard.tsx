@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Application } from "../types/application";
 import { getApplications } from "../api/applications";
 import ApplicationCard from "./ApplicationCard";
+import CreateApplicationForm from "./CreateApplicationForm";
 
 const STATUS_FILTERS = ["all", "applied", "interviewing", "offer", "rejected"];
 
@@ -10,22 +11,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showForm, setShowForm] = useState(false);
+
+  async function loadApplications() {
+    setLoading(true);
+    setError(null);
+    try {
+      const filter = statusFilter === "all" ? undefined : statusFilter;
+      const data = await getApplications(filter);
+      setApplications(data);
+    } catch (err) {
+      setError("Failed to load applications. Is the backend running?");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadApplications() {
-      setLoading(true);
-      setError(null);
-      try {
-        const filter = statusFilter === "all" ? undefined : statusFilter;
-        const data = await getApplications(filter);
-        setApplications(data);
-      } catch (err) {
-        setError("Failed to load applications. Is the backend running?");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
     loadApplications();
   }, [statusFilter]);
 
@@ -58,6 +61,31 @@ export default function Dashboard() {
           </button>
         ))}
       </div>
+
+      <button
+        onClick={() => setShowForm(!showForm)}
+        style={{
+          padding: "8px 16px",
+          borderRadius: "6px",
+          border: "1px solid #2a2a2a",
+          backgroundColor: showForm ? "#2a2a2a" : "#3b82f6",
+          color: "#fff",
+          cursor: "pointer",
+          marginBottom: "16px",
+        }}
+      >
+        {showForm ? "Cancel" : "+ New Application"}
+      </button>
+
+      {showForm && (
+        <CreateApplicationForm
+          onCreated={() => {
+            setShowForm(false);
+            loadApplications();
+          }}
+          onCancel={() => setShowForm(false)}
+        />
+      )}
 
       {loading && <p style={{ color: "#9ca3af" }}>Loading...</p>}
       {error && <p style={{ color: "#ef4444" }}>{error}</p>}
