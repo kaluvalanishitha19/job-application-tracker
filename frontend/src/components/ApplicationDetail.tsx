@@ -85,12 +85,14 @@ export default function ApplicationDetail() {
   }
 
   const sectionStyle: React.CSSProperties = {
-    border: "1px solid #2a2a2a",
-    borderRadius: "8px",
-    padding: "16px",
-    marginBottom: "16px",
-    backgroundColor: "#1a1a1a",
-  };
+  border: "1px solid #2a2a2a",
+  borderRadius: "8px",
+  padding: "16px",
+  marginBottom: "16px",
+  backgroundColor: "#1a1a1a",
+  width: "100%",
+  boxSizing: "border-box",
+};
 
   const smallButtonStyle: React.CSSProperties = {
     padding: "6px 12px",

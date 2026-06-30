@@ -40,6 +40,7 @@ export default function AddRecruiterContactForm({
 
   const inputStyle: React.CSSProperties = {
     flex: 1,
+    minWidth: 0,
     padding: "8px 10px",
     borderRadius: "6px",
     border: "1px solid #2a2a2a",
