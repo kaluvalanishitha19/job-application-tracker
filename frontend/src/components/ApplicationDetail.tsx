@@ -5,6 +5,8 @@ import { getApplication } from "../api/applications";
 import { getInterviewStages } from "../api/interviewStages";
 import { getRecruiterContacts } from "../api/recruiterContacts";
 import { getAIInsights, generateAIInsight } from "../api/aiInsights";
+import AddInterviewStageForm from "./AddInterviewStageForm";
+import AddRecruiterContactForm from "./AddRecruiterContactForm";
 
 const INSIGHT_LABELS: Record<string, string> = {
   keyword_extraction: "Keywords",
@@ -23,6 +25,8 @@ export default function ApplicationDetail() {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [generatingType, setGeneratingType] = useState<string | null>(null);
+  const [showStageForm, setShowStageForm] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   async function loadAll() {
     setLoading(true);
@@ -62,6 +66,16 @@ export default function ApplicationDetail() {
     }
   }
 
+  async function refreshStages() {
+    const updated = await getInterviewStages(applicationId);
+    setStages(updated);
+  }
+
+  async function refreshContacts() {
+    const updated = await getRecruiterContacts(applicationId);
+    setContacts(updated);
+  }
+
   if (loading) {
     return <p style={{ color: "#9ca3af", padding: "24px" }}>Loading...</p>;
   }
@@ -78,8 +92,18 @@ export default function ApplicationDetail() {
     backgroundColor: "#1a1a1a",
   };
 
+  const smallButtonStyle: React.CSSProperties = {
+    padding: "6px 12px",
+    borderRadius: "6px",
+    border: "1px solid #2a2a2a",
+    backgroundColor: "#2a2a2a",
+    color: "#fff",
+    fontSize: "13px",
+    cursor: "pointer",
+  };
+
   return (
-   <div style={{ maxWidth: "800px", margin: "0 auto", padding: "24px", boxSizing: "border-box" }}>
+    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "24px", boxSizing: "border-box" }}>
       <button
         onClick={() => navigate("/")}
         style={{
@@ -115,12 +139,7 @@ export default function ApplicationDetail() {
               onClick={() => handleGenerateInsight(type)}
               disabled={generatingType === type}
               style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                border: "1px solid #2a2a2a",
-                backgroundColor: "#2a2a2a",
-                color: "#fff",
-                fontSize: "13px",
+                ...smallButtonStyle,
                 cursor: generatingType === type ? "not-allowed" : "pointer",
               }}
             >
@@ -146,28 +165,70 @@ export default function ApplicationDetail() {
       </div>
 
       <div style={sectionStyle}>
-        <h3 style={{ color: "#fff", marginTop: 0 }}>Interview Stages</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ color: "#fff", margin: 0 }}>Interview Stages</h3>
+          <button onClick={() => setShowStageForm(!showStageForm)} style={smallButtonStyle}>
+            {showStageForm ? "Cancel" : "+ Add Stage"}
+          </button>
+        </div>
+
+        {showStageForm && (
+          <AddInterviewStageForm
+            applicationId={applicationId}
+            onAdded={() => {
+              setShowStageForm(false);
+              refreshStages();
+            }}
+            onCancel={() => setShowStageForm(false)}
+          />
+        )}
+
         {stages.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "13px" }}>No interview stages yet.</p>
+          <p style={{ color: "#6b7280", fontSize: "13px", marginTop: "12px" }}>
+            No interview stages yet.
+          </p>
         ) : (
-          stages.map((stage) => (
-            <p key={stage.id} style={{ color: "#d1d5db", fontSize: "14px" }}>
-              {stage.completed ? "✅" : "⏳"} {stage.stage_name}
-            </p>
-          ))
+          <div style={{ marginTop: "12px" }}>
+            {stages.map((stage) => (
+              <p key={stage.id} style={{ color: "#d1d5db", fontSize: "14px" }}>
+                {stage.completed ? "✅" : "⏳"} {stage.stage_name}
+              </p>
+            ))}
+          </div>
         )}
       </div>
 
       <div style={sectionStyle}>
-        <h3 style={{ color: "#fff", marginTop: 0 }}>Recruiter Contacts</h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h3 style={{ color: "#fff", margin: 0 }}>Recruiter Contacts</h3>
+          <button onClick={() => setShowContactForm(!showContactForm)} style={smallButtonStyle}>
+            {showContactForm ? "Cancel" : "+ Add Contact"}
+          </button>
+        </div>
+
+        {showContactForm && (
+          <AddRecruiterContactForm
+            applicationId={applicationId}
+            onAdded={() => {
+              setShowContactForm(false);
+              refreshContacts();
+            }}
+            onCancel={() => setShowContactForm(false)}
+          />
+        )}
+
         {contacts.length === 0 ? (
-          <p style={{ color: "#6b7280", fontSize: "13px" }}>No recruiter contacts yet.</p>
+          <p style={{ color: "#6b7280", fontSize: "13px", marginTop: "12px" }}>
+            No recruiter contacts yet.
+          </p>
         ) : (
-          contacts.map((contact) => (
-            <p key={contact.id} style={{ color: "#d1d5db", fontSize: "14px" }}>
-              {contact.name} {contact.email && `· ${contact.email}`}
-            </p>
-          ))
+          <div style={{ marginTop: "12px" }}>
+            {contacts.map((contact) => (
+              <p key={contact.id} style={{ color: "#d1d5db", fontSize: "14px" }}>
+                {contact.name} {contact.email && `· ${contact.email}`}
+              </p>
+            ))}
+          </div>
         )}
       </div>
     </div>
