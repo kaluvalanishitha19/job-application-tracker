@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { Application } from "../types/application";
 
 interface ApplicationCardProps {
@@ -12,16 +13,19 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function ApplicationCard({ application }: ApplicationCardProps) {
+  const navigate = useNavigate();
   const statusColor = STATUS_COLORS[application.status] ?? "#6b7280";
 
   return (
     <div
+      onClick={() => navigate(`/applications/${application.id}`)}
       style={{
         border: "1px solid #2a2a2a",
         borderRadius: "8px",
         padding: "16px",
         marginBottom: "12px",
         backgroundColor: "#1a1a1a",
+        cursor: "pointer",
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
